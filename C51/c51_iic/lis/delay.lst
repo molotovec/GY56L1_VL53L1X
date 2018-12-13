@@ -1,0 +1,55 @@
+C51 COMPILER V8.02   DELAY                                                                 05/26/2018 15:21:27 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN ..\output\delay.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\Keil\C51\BIN\C51.EXE ..\Peripherals\src\delay.c BROWSE INCDIR(..\PERIPHERALS
+                    -\INC\) DEBUG OBJECTEXTEND PRINT(..\lis\delay.lst) OBJECT(..\output\delay.obj)
+
+line level    source
+
+   1           #include "delay.h"
+   2           u8 Time_count=0;
+   3           uint16_t Delay_count=0;
+   4           uint16_t Time_ms=0;      
+   5           #define system_clk  11.0592   //系统晶振
+   6           //x：需要中断的时间 us ；x< 277  us
+   7           void Delay_Init(uint16_t x)
+   8           {
+   9   1               Time_count=256-(x*system_clk/12);
+  10   1               Time_ms=1000/x;
+  11   1               TMOD |= 0x02;//定时器0，8位自动重装计数值
+  12   1           TH0  =Time_count;
+  13   1               TL0  =Time_count;
+  14   1           //TCON |= 0x10;//定时器允许计时
+  15   1               TR0=0;
+  16   1               IP&= 0xfd;//定时器0低优先级
+  17   1               //IE   |=0x82;//允许定时器0中断，MCU总中断
+  18   1               ET0=1;
+  19   1               EA=1;
+  20   1                    
+  21   1       }
+  22           void delay_ms(uint16_t x)
+  23           {
+  24   1           
+  25   1           Delay_count=x*Time_ms;
+  26   1               TR0=1;//定时器0开始计数
+  27   1               while(Delay_count);
+  28   1               TR0=0;  // 停止计数
+  29   1               TL0 =Time_count; //重新赋初值
+  30   1               x=TF0; //TF0查询清零
+  31   1       }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    121    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,84 @@
+C51 COMPILER V8.02   MAIN                                                                  05/26/2018 15:21:27 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN ..\output\main.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\Keil\C51\BIN\C51.EXE main.c BROWSE INCDIR(..\PERIPHERALS\INC\) DEBUG OBJECTE
+                    -XTEND PRINT(..\lis\main.lst) OBJECT(..\output\main.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "usart.h"
+   3          #include "iic.h"
+   4          #include "delay.h"
+   5          #include "string.h"  
+   6          #include "stdio.h"
+   7          
+   8          /*
+   9          硬件接法：
+  10          GY-56L1----C51
+  11          SCL---P3^6
+  12          SDA---P3^7
+  13          C51---FT232
+  14          TX ---RX
+  15          RX ---TX
+  16          软件说明：
+  17          
+  18          注：
+  19                  中断函数位于stc_it.c
+  20          联系方式：
+  21          http://shop62474960.taobao.com/?spm=a230r.7195193.1997079397.2.9qa3Ky&v=1
+  22          */
+  23          /*测距时间*/
+  24          #define measure_time_50ms 0
+  25          #define measure_time_100ms 1
+  26          #define measure_time_200ms 2
+  27          #define measure_time_300ms 3
+  28          /*测距模式*/
+  29          #define DISTANCEMODE_SHORT  1
+  30          #define DISTANCEMODE_MEDIUM 2
+  31          #define DISTANCEMODE_LONG   3
+  32          
+  33          int main(void)
+  34          {       
+  35   1         uint16_t delay_time=0;
+  36   1         u8 measure_time=measure_time_100ms;//测距 时间为100ms
+  37   1              Usart_Int(9600);
+  38   1              Delay_Init(200);  //  200us中断一次
+  39   1         // changeAddress(0xe0,0x40);//更改IIC地址，模块将保存该设置
+  40   1              changemode(0xe0,DISTANCEMODE_MEDIUM,measure_time);//修改测距模式和时间，模块不保存该配置
+  41   1              switch(measure_time)//选择读取间隔
+  42   1              {
+  43   2                      case measure_time_50ms:delay_time=100;break;
+  44   2                      case measure_time_100ms:delay_time=150;break;
+  45   2                      case measure_time_200ms:delay_time=250;break;
+  46   2                      case measure_time_300ms:delay_time=350;break;
+  47   2              }
+  48   1              while(1)
+  49   1              {
+  50   2                      uint16_t diatance=0;
+  51   2                  requestRange((0xe1),&diatance);              //读取距离数据
+  52   2                      takeRangeReading(0xe0);                          //发送测量命令
+  53   2                      
+  54   2                      //send_out(&diatance,1,0x45);            //发向上位机
+C51 COMPILER V8.02   MAIN                                                                  05/26/2018 15:21:27 PAGE 2   
+
+  55   2                      printf("diatance:%d\r\n",diatance);//串口1打印输出
+  56   2                      delay_ms(delay_time);                 //读取间隔
+  57   2              }
+  58   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    122    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

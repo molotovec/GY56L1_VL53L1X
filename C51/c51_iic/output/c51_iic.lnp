@@ -1,0 +1,7 @@
+"..\output\usart.obj",
+"..\output\stc_it.obj",
+"..\output\iic.obj",
+"..\output\delay.obj",
+"..\output\main.obj" 
+TO "..\output\c51_iic" 
+PRINT("..\lis\c51_iic.m51") RAMSIZE(256) 
